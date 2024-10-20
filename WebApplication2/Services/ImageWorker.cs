@@ -102,6 +102,8 @@ namespace WebApplication2.Services
                         // Логуємо або обробляємо помилки видалення окремих файлів
                         Console.WriteLine($"Помилка видалення файлу '{filePath}': {ex.Message}");
                     }
+
+
                 }
             });
         }
