@@ -1,0 +1,136 @@
+﻿@model List<CategoryItemViewModel>
+<h1 class="text-center">Оберіть потрібну категорію</h1>
+<div class="container">
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-6 col-sm-6 col-lg-4 col-xl-3" id="@("ProductItem"+@item.Id)">
+                <div class="card" style="width: 100%;">
+
+                    <picture>
+                        <!-- Image for screens 1280px and above -->
+                        <source media="(min-width: 1280px)" srcset="/uploading/600_@item.Image">
+
+                        <!-- Image for screens 992px and above -->
+                        <source media="(min-width: 992px)" srcset="/uploading/300_@item.Image">
+
+                        <!-- Image for screens 768px and above -->
+                        <source media="(min-width: 768px)" srcset="/uploading/600_@item.Image">
+
+                        <!-- Image for screens 360px and above -->
+                        <source media="(min-width: 360px)" srcset="/uploading/600_@item.Image">
+
+                        <!-- Fallback image if none of the above conditions match -->
+                        <img src="/uploading/300_@item.Image" class="card-img-top" alt="Responsive Image Example">
+                    </picture>
+
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="card-text">@item.Description</p>
+                        <a href="#" class="btn btn-danger" data-name="@item.Name" data-delete="@item.Id">Delete</a>
+                        <a href="#" class="btn btn-primary" data-name="@item.Name"
+                           data-edit="@item.Id">Edit</a>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="col-md-3">
+            <div class="card" style="width: 100%;">
+                <img src="https://i.pinimg.com/originals/47/45/5f/47455ffe209f5e6373ff65b7c0b80b00.png" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">Name - Нова категорія</h5>
+                    <p class="card-text">Description</p>
+                    <a asp-action="Create" class="btn btn-success">Додати</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modalDelete" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ви дійсно бажаєте видалити</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Буде проведено видалення <span id="categoryName"></span>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-primary" id="deleteYes">Підтвердити</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modalEdit" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ви дійсно бажаєте редагувати</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-primary" id="editYes">Підтвердити</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/lib/axios/axios.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            var modalDelete = new bootstrap.Modal(document.getElementById('modalDelete'));
+            var modalEdit = new bootstrap.Modal(document.getElementById('modalEdit'));
+            var buttonsDelete = document.querySelectorAll('[data-delete]');
+            var buttonsEdit = document.querySelectorAll('[data-edit]');
+            var categoryName = document.getElementById("categoryName");
+            var idDelete = 0, idEdit = 0;
+
+            buttonsDelete.forEach(btn => {
+                btn.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    var id = this.getAttribute('data-delete');
+                    var name = this.getAttribute('data-name');
+                    idDelete = id;
+                    categoryName.innerHTML = name;
+                    modalDelete.show();
+                });
+            });
+
+            buttonsEdit.forEach(btn => {
+                btn.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    var id = this.getAttribute('data-edit');
+                    var name = this.getAttribute('data-name');
+                    idEdit = id;
+                    categoryName.innerHTML = name;
+                    modalEdit.show();
+                });
+            });
+
+            document.getElementById("deleteYes").addEventListener("click", () => {
+                axios.post("/Main/Delete/" + idDelete)
+                    .then(res => {
+                        modalDelete.hide();
+                        document.getElementById("ProductItem" + idDelete).remove();
+                    });
+            });
+
+            document.getElementById("editYes").addEventListener("click", () => {
+                window.location.href = "/Main/Edit/" + idEdit;
+            });
+           
+
+
+            // Set image sizes on page load and resize
+            setImageSizes();
+            window.addEventListener('resize', setImageSizes);
+        });
+              
+    </script>
+}
